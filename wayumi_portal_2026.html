@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wayumi 2026 Staff Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f4f1ea;--surface:#fff;--card:#fff;--card2:#f8f5ef;
+  --border:#e2d9c8;--text:#1e1a12;--text2:#4a4030;--muted:#7a7060;
+  --green:#3d7a47;--green-bg:#eaf4ec;--gold:#a87828;--gold-bg:#fdf5e0;
+  --red:#a83828;--red-bg:#fdecea;--blue:#2a5f8e;--blue-bg:#e8f1fa;
+  --purple:#6b3fa0;--amber:#8e5418;--orange:#d4650a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);min-height:100vh;}
+
+/* TOPBAR */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;display:flex;align-items:center;justify-content:space-between;height:62px;position:sticky;top:0;z-index:50;box-shadow:0 1px 6px rgba(0,0,0,0.07);}
+.logo-text{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--text);}
+.logo-sub{font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:1px;}
+.logo-div{width:1px;height:26px;background:var(--border);}
+.logo{display:flex;align-items:center;gap:12px;}
+.topbar-r{display:flex;align-items:center;gap:10px;}
+.yr-badge{background:var(--text);color:#fff;font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;letter-spacing:1px;}
+.staff-pill{font-size:12px;color:var(--muted);background:var(--card2);border:1px solid var(--border);padding:4px 12px;border-radius:20px;}
+
+/* TABS */
+.tabs{display:flex;padding:0 32px;background:var(--surface);border-bottom:2px solid var(--border);overflow-x:auto;}
+.tab{padding:13px 16px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;white-space:nowrap;flex-shrink:0;}
+.tab:hover{color:var(--text);}
+.tab.active{color:var(--green);border-bottom-color:var(--green);font-weight:600;}
+
+/* MAIN */
+.main{padding:26px 32px;max-width:1060px;margin:0 auto;}
+.section{display:none;}.section.active{display:block;}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-top:4px;}
+.sec-title{font-family:'Playfair Display',serif;font-size:23px;color:var(--text);}
+.pill{font-size:12px;color:var(--muted);background:var(--card2);border:1px solid var(--border);padding:4px 12px;border-radius:20px;}
+
+/* LOADING */
+.loading{text-align:center;padding:60px;color:var(--muted);font-size:13px;}
+.loading-spin{display:inline-block;width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:12px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* EVENT CARDS */
+.ev-list{display:flex;flex-direction:column;gap:8px;}
+.ev-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .18s;opacity:0;animation:fadeUp .4s ease forwards;display:flex;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.ev-card:hover{box-shadow:0 3px 14px rgba(61,122,71,.1);transform:translateY(-1px);}
+.ev-card:hover .ev-arr{opacity:1;transform:translateX(0);}
+.ev-acc{width:4px;flex-shrink:0;}
+.ev-bod{flex:1;padding:13px 18px;display:flex;align-items:center;gap:18px;}
+.ev-dt{flex-shrink:0;text-align:center;min-width:64px;}
+.ev-mo{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.ev-dy{font-family:'Playfair Display',serif;font-size:20px;color:var(--text);line-height:1;}
+.ev-dv{width:1px;height:34px;background:var(--border);flex-shrink:0;}
+.ev-inf{flex:1;}
+.ev-badge{display:inline-block;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:2px 7px;border-radius:5px;font-weight:600;margin-bottom:3px;}
+.ev-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.ev-sub{font-size:12px;color:var(--muted);}
+.ev-pills{display:flex;gap:6px;flex-shrink:0;align-items:center;}
+.ev-p{font-size:11px;padding:3px 9px;border-radius:7px;font-weight:500;white-space:nowrap;}
+.ev-arr{color:var(--muted);font-size:18px;flex-shrink:0;opacity:0;transform:translateX(-5px);transition:all .18s;padding-right:10px;}
+.p-full{background:var(--red-bg);color:var(--red);border:1px solid #f0bfb8;}
+.p-open{background:var(--green-bg);color:var(--green);border:1px solid #b8ddc0;}
+.p-cnt{background:var(--card2);color:var(--text2);border:1px solid var(--border);}
+
+/* TYPE COLORS */
+.acc-expedition{background:#d4650a;} .badge-expedition{background:#fde9d4;color:#b8500a;}
+.acc-retreat{background:#3e9e58;}    .badge-retreat{background:#dff4e5;color:#2e7a42;}
+.acc-course{background:#2a5f8e;}     .badge-course{background:#e8f1fa;color:#2a5f8e;}
+.acc-quest{background:#6b3fa0;}      .badge-quest{background:#ede5f7;color:#5a3189;}
+.acc-adventure{background:#c2437a;}  .badge-adventure{background:#fce8f0;color:#a83368;}
+.acc-clr{background:#c9a000;}        .badge-clr{background:#fdf6d3;color:#9a7800;}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(30,26,18,.55);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s;backdrop-filter:blur(5px);}
+.modal-bg.open{opacity:1;pointer-events:all;}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:18px;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;transform:scale(.96) translateY(10px);transition:transform .2s;box-shadow:0 20px 70px rgba(0,0,0,.18);}
+.modal-bg.open .modal{transform:scale(1) translateY(0);}
+.m-bar{height:4px;border-radius:18px 18px 0 0;}
+.m-top{padding:22px 22px 0;}
+.m-tag{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-bottom:7px;display:flex;align-items:center;gap:5px;}
+.m-dot{width:6px;height:6px;border-radius:50%;}
+.m-title{font-family:'Playfair Display',serif;font-size:22px;color:var(--text);margin-bottom:4px;}
+.m-sub{font-size:12px;color:var(--muted);margin-bottom:18px;}
+.m-line{height:1px;background:var(--border);margin:0 -22px;}
+.m-body{padding:18px 22px 22px;}
+.m-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:20px;}
+.m-chip{background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:9px 13px;}
+.m-chip-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+.m-chip-v{font-size:16px;font-weight:600;color:var(--text);}
+.m-st{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:9px;display:flex;align-items:center;gap:7px;}
+.m-st::after{content:'';flex:1;height:1px;background:var(--border);}
+.m-sec{margin-bottom:20px;}
+.m-grp{background:var(--card2);border:1px solid var(--border);border-radius:9px;padding:10px 13px;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.m-gn{font-size:13px;color:var(--text);font-weight:500;}
+.m-gm{font-size:11px;color:var(--muted);margin-top:1px;}
+.m-gnum{font-family:'Playfair Display',serif;font-size:19px;color:var(--green);}
+.m-note{background:var(--gold-bg);border:1px solid #e0c880;border-left:3px solid var(--gold);border-radius:0 9px 9px 0;padding:11px 13px;font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px;}
+.m-close-btn{font-size:13px;color:var(--muted);cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;padding:9px;margin-left:auto;display:block;}
+.m-close-btn:hover{color:var(--text);}
+
+/* KITCHEN */
+.m-kitchen{background:var(--card2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-top:20px;}
+.m-kitchen-hdr{background:#fff8ee;border-bottom:1px solid #e8d8b0;padding:12px 16px;display:flex;align-items:center;gap:8px;}
+.m-kitchen-title{font-size:11px;font-weight:700;color:var(--amber);letter-spacing:1.5px;text-transform:uppercase;}
+.m-kitchen-body{padding:16px;}
+.m-kgend{display:flex;gap:8px;margin-bottom:16px;}
+.m-kgbox{flex:1;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;}
+.m-kgnum{font-family:'Playfair Display',serif;font-size:22px;color:var(--text);line-height:1;}
+.m-kglbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+.m-ksub{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:14px 0 7px;display:flex;align-items:center;gap:7px;}
+.m-ksub::after{content:'';flex:1;height:1px;background:var(--border);}
+.m-krow{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:9px 12px;margin-bottom:5px;font-size:12px;color:var(--text2);line-height:1.5;}
+.m-krow strong{color:var(--text);}
+.m-kalert{background:var(--red-bg);border:1px solid #f0bfb8;border-left:3px solid var(--red);border-radius:0 8px 8px 0;padding:9px 12px;margin-bottom:5px;font-size:12px;color:var(--red);}
+.m-kalert strong{color:var(--red);}
+.m-kbday{background:#f0ebfa;border:1px solid #cdb8f0;border-radius:8px;padding:9px 12px;margin-bottom:5px;font-size:12px;color:#5a3a8e;}
+.m-kbday strong{color:#5a3a8e;}
+.m-knone{font-size:12px;color:var(--muted);font-style:italic;padding:4px 0;}
+
+/* YEAR TAB */
+.yr-hero{text-align:center;padding:32px 0 28px;opacity:0;animation:fadeUp .6s ease forwards .1s;}
+.yr-hero h2{font-family:'Playfair Display',serif;font-size:clamp(26px,5vw,44px);color:var(--text);margin-bottom:5px;}
+.yr-hero p{font-size:13px;color:var(--muted);}
+.yr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px;margin-bottom:28px;}
+.yr-tile{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 16px;opacity:0;animation:fadeUp .5s ease forwards;box-shadow:0 1px 3px rgba(0,0,0,.04);position:relative;overflow:hidden;}
+.yr-tile::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.yr-tile.g::before{background:#3e9e58;}.yr-tile.b::before{background:#2a5f8e;}
+.yr-tile.p::before{background:#6b3fa0;}.yr-tile.a::before{background:#c9a000;}
+.yr-tile.o::before{background:#d4650a;}.yr-tile.t::before{background:#c2437a;}
+.yr-num{font-family:'Playfair Display',serif;font-size:36px;color:var(--text);line-height:1;margin-bottom:4px;}
+.yr-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;}
+.yr-2col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
+.yr-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;opacity:0;animation:fadeUp .5s ease forwards .3s;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.yr-ctitle{font-family:'Playfair Display',serif;font-size:16px;color:var(--text);margin-bottom:13px;}
+.yr-row{display:flex;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.yr-row:last-child{border-bottom:none;}
+.yr-rname{color:var(--text2);flex:1;}
+.yr-rval{font-weight:600;color:var(--green);font-family:'Playfair Display',serif;font-size:15px;}
+.yr-bw{flex:1;margin:0 11px;height:4px;background:var(--border);border-radius:2px;}
+.yr-b{height:4px;border-radius:2px;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+@media(max-width:700px){
+  .topbar,.main{padding-left:14px;padding-right:14px;}
+  .tabs{padding:0 10px;}
+  .yr-2col{grid-template-columns:1fr;}
+  .ev-pills{display:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <div>
+      <div class="logo-text">Wayumi</div>
+      <div class="logo-sub">Program</div>
+    </div>
+    <div class="logo-div"></div>
+  </div>
+  <div class="topbar-r">
+    <div class="yr-badge">2026</div>
+    <div class="staff-pill" id="lastUpdated">Loading&hellip;</div>
+    <div class="staff-pill">Staff Portal</div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="events">Upcoming Events</div>
+  <div class="tab" data-tab="year">Year at a Glance</div>
+</div>
+
+<div class="main">
+  <div class="section active" id="tab-events">
+    <div class="sec-hdr">
+      <div class="sec-title">Upcoming Events</div>
+      <div class="pill" id="evCount">&hellip;</div>
+    </div>
+    <div id="evList">
+      <div class="loading"><div class="loading-spin"></div><br>Loading live data&hellip;</div>
+    </div>
+  </div>
+
+  <div class="section" id="tab-year">
+    <div class="yr-hero">
+      <h2>2026 Season</h2>
+      <p id="yearSubtitle">Loading&hellip;</p>
+    </div>
+    <div class="yr-grid" id="statGrid"></div>
+    <div class="yr-2col">
+      <div class="yr-card"><div class="yr-ctitle">Registrations by Program</div><div id="byProgram"></div></div>
+      <div class="yr-card"><div class="yr-ctitle">Events by Month</div><div id="byMonth"></div></div>
+    </div>
+    <div class="yr-card" style="margin-bottom:24px">
+      <div class="yr-ctitle">All 2026 Events</div>
+      <div id="allEvents"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <div class="m-bar" id="mBar"></div>
+    <div class="m-top">
+      <div class="m-tag"><div class="m-dot" id="mDot"></div><span id="mTag"></span></div>
+      <div class="m-title" id="mTitle"></div>
+      <div class="m-sub" id="mSub"></div>
+      <button class="m-close-btn" id="mClose">&#x2715; Close</button>
+    </div>
+    <div class="m-line"></div>
+    <div class="m-body" id="mBody"></div>
+  </div>
+</div>
+
+<script>
+// ─── CONFIG ──────────────────────────────────────────────────────────────────
+const JSON_URL = 'https://ntmorg-my.sharepoint.com/personal/liam_mcivor_ntm_org/_layouts/15/download.aspx?UniqueId=5482fa2948fa46249a7253be3a74797b&e=aiSecB&download=1';
+
+// ─── TYPE CONFIG ─────────────────────────────────────────────────────────────
+const TYPE_CFG = {
+  'Expedition': {acc:'acc-expedition', badge:'badge-expedition', color:'#d4650a'},
+  'Retreat':    {acc:'acc-retreat',    badge:'badge-retreat',    color:'#3e9e58'},
+  'Course':     {acc:'acc-course',     badge:'badge-course',     color:'#2a5f8e'},
+  'Quest':      {acc:'acc-quest',      badge:'badge-quest',      color:'#6b3fa0'},
+  'Adventure':  {acc:'acc-adventure',  badge:'badge-adventure',  color:'#c2437a'},
+  'CLR':        {acc:'acc-clr',        badge:'badge-clr',        color:'#c9a000'},
+};
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function clean(s){ return (s||'').replace(/\n/g,' ').trim(); }
+
+// Parse "June 7-12" or "Feb 20-22" or "Sept 2-4" etc into a JS Date
+function parseEventDate(str) {
+  if (!str) return null;
+  str = str.trim();
+  // Match "Month Day-Day" or "Month Day"
+  const m = str.match(/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\w*\.?\s+(\d+)/i);
+  if (!m) return null;
+  const monthNames = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+  const mo = monthNames[m[1].toLowerCase().slice(0,3)];
+  const day = parseInt(m[2]);
+  if (mo === undefined || isNaN(day)) return null;
+  return new Date(2026, mo, day);
+}
+
+function parseEndDate(str) {
+  if (!str) return null;
+  str = str.trim();
+  // Get the last number after the dash
+  const m = str.match(/(\d+)\s*$/);
+  const startDate = parseEventDate(str);
+  if (!startDate || !m) return startDate;
+  const endDay = parseInt(m[1]);
+  return new Date(2026, startDate.getMonth(), endDay);
+}
+
+function fmtRange(dateStr) {
+  const s = parseEventDate(dateStr);
+  const e = parseEndDate(dateStr);
+  if (!s) return dateStr;
+  if (!e || s.getDate() === e.getDate()) return MONTHS[s.getMonth()] + ' ' + s.getDate();
+  if (s.getMonth() === e.getMonth()) return MONTHS[s.getMonth()] + ' ' + s.getDate() + '\u2013' + e.getDate();
+  return MONTHS[s.getMonth()] + ' ' + s.getDate() + ' \u2013 ' + MONTHS[e.getMonth()] + ' ' + e.getDate();
+}
+
+function excelToDate(serial) {
+  const n = parseFloat(serial);
+  if (isNaN(n)) return null;
+  return new Date(new Date(1899,11,30).getTime() + n * 86400000);
+}
+
+function todayDate(){ const t=new Date(); t.setHours(0,0,0,0); return t; }
+
+// ─── BUILD EVENTS FROM JSON ───────────────────────────────────────────────────
+function buildEvents(data) {
+  const events = [];
+
+  // --- EXPEDITION ---
+  // Group rows by EVENT ID. Header rows have a DATE like "June 7-12", group rows have STATE in DATE col.
+  const expHeaders = {};
+  const expGroups  = {};
+  (data.expedition||[]).forEach(r => {
+    const eid = clean(r['EVENT ID']);
+    const dateVal = clean(r['DATE']);
+    const group = clean(r['GROUP']);
+    if (!eid) return;
+    // Header row: DATE looks like "June X-Y" (has a letter) and GROUP is "FULL..." or empty
+    if (/[a-zA-Z]/.test(dateVal) && dateVal.match(/\d/)) {
+      // It's a date string like "June 7-12"
+      expHeaders[eid] = r;
+      expGroups[eid] = expGroups[eid] || [];
+    } else if (dateVal.match(/^[A-Z]{2,3}$/) || (dateVal === '' && group)) {
+      // State code or group row
+      expGroups[eid] = expGroups[eid] || [];
+      if (group && !group.match(/^TOTAL/i) && !group.match(/^CANCEL/i)) {
+        expGroups[eid].push(r);
+      }
+    }
+  });
+
+  Object.entries(expHeaders).forEach(([eid, hdr]) => {
+    const dateStr = clean(hdr['DATE']);
+    const startDate = parseEventDate(dateStr);
+    if (!startDate) return;
+    const endDate = parseEndDate(dateStr) || startDate;
+    const statusRaw = clean(hdr['GROUP']).toUpperCase();
+    const status = statusRaw.includes('FULL') ? 'full' : 'open';
+    const estSize = parseInt(hdr[' (est)']) || 0;
+    const rows = expGroups[eid] || [];
+    const groups = rows.filter(r => clean(r['GROUP']) && !clean(r['GROUP']).match(/^(TOTAL|CANCEL|WAIT)/i)).map(r => ({
+      state: clean(r['DATE']),
+      name: clean(r['GROUP']),
+      contact: clean(r['CONTACT']),
+      est: parseInt(r[' (est)']) || 0,
+      notes: clean(r['NOTES']),
+      deposit: clean(r['DEPOSIT'])
+    }));
+    events.push({id:eid, type:'Expedition', dateStr, startDate, endDate, status, estSize, groups,
+      notes: clean(hdr['NOTES'])});
+  });
+
+  // --- RETREAT / CLR ---
+  const retHeaders = {};
+  const retGroups  = {};
+  (data.retreat||[]).forEach(r => {
+    const eid = clean(r['EVENT ID']);
+    const dateVal = clean(r['DATE']);
+    const group = clean(r['GROUP']);
+    if (!eid) return;
+    if (dateVal.match(/[a-zA-Z]/) && dateVal.match(/\d/)) {
+      retHeaders[eid] = r;
+      retGroups[eid] = retGroups[eid] || [];
+    } else if (dateVal.match(/^[A-Z]{2,3}$/) || (dateVal === '' && group)) {
+      retGroups[eid] = retGroups[eid] || [];
+      if (group && !group.match(/^TOTAL/i) && !group.match(/^CANCEL/i) && !group.match(/^INTEREST/i)) {
+        retGroups[eid].push(r);
+      }
+    }
+  });
+
+  Object.entries(retHeaders).forEach(([eid, hdr]) => {
+    const dateStr = clean(hdr['DATE']);
+    const startDate = parseEventDate(dateStr);
+    if (!startDate) return;
+    const endDate = parseEndDate(dateStr) || startDate;
+    const groupType = clean(hdr['GROUP']).toUpperCase();
+    const isCLR = groupType.includes('CLR');
+    const isCancelled = clean(hdr['NOTES']).toLowerCase().includes('cancel') || groupType.includes('CANCEL');
+    if (isCancelled) return;
+    const estSize = parseInt(hdr['EST SIZE']) || 0;
+    const rows = retGroups[eid] || [];
+    const groups = rows.filter(r => clean(r['GROUP']) && !clean(r['GROUP']).match(/^TOTAL/i)).map(r => ({
+      state: clean(r['DATE']),
+      name: clean(r['GROUP']),
+      contact: clean(r['CONTACT']),
+      est: parseInt(r['EST SIZE']) || 0,
+      notes: clean(r['NOTES']),
+      deposit: clean(r['DEPOSIT'])
+    }));
+    events.push({id:eid, type: isCLR ? 'CLR' : 'Retreat', dateStr, startDate, endDate,
+      status: estSize > 0 ? 'open' : 'open', estSize, groups, notes: clean(hdr['NOTES'])});
+  });
+
+  // --- COURSE ---
+  const crsHeaders = {};
+  const crsGroups  = {};
+  (data.course||[]).forEach(r => {
+    const eid = clean(r['EVENT ID']);
+    const dateVal = clean(r['DATE']);
+    const group = clean(r['GROUP']);
+    if (!eid) return;
+    if (dateVal.match(/[a-zA-Z]/) && dateVal.match(/\d/) && group.toUpperCase().includes('COURSE')) {
+      crsHeaders[eid] = r;
+      crsGroups[eid] = crsGroups[eid] || [];
+    } else if (eid && (dateVal.match(/^[A-Z]{2,3}$/) || (dateVal === '' && group))) {
+      crsGroups[eid] = crsGroups[eid] || [];
+      if (group && !group.match(/^TOTAL/i) && !clean(r['NOTES']).toLowerCase().includes('cancel') && parseInt(r['EST']||0) > 0) {
+        crsGroups[eid].push(r);
+      }
+    }
+  });
+
+  Object.entries(crsHeaders).forEach(([eid, hdr]) => {
+    const dateStr = clean(hdr['DATE']);
+    const startDate = parseEventDate(dateStr);
+    if (!startDate) return;
+    const endDate = parseEndDate(dateStr) || startDate;
+    const estSize = parseInt(hdr['EST']) || 0;
+    const rows = crsGroups[eid] || [];
+    const groups = rows.map(r => ({
+      state: clean(r['DATE']),
+      name: clean(r['GROUP']),
+      contact: clean(r['CONTACT']),
+      est: parseInt(r['EST']) || 0,
+      notes: clean(r['NOTES']),
+      deposit: clean(r['INVOICE'])
+    }));
+    events.push({id:eid, type:'Course', dateStr, startDate, endDate, status:'open', estSize, groups,
+      notes: clean(hdr['NOTES'])});
+  });
+
+  // --- QUEST ---
+  const qstHeaders = {};
+  const qstGroups  = {};
+  (data.quest||[]).forEach(r => {
+    const eid = clean(r['EVENT ID']);
+    const dateVal = clean(r['DATE']);
+    const group = clean(r['GROUP']);
+    if (!eid) return;
+    if (dateVal.match(/[a-zA-Z]/) && dateVal.match(/\d/) && !dateVal.match(/^[A-Z]{2,3}$/)) {
+      qstHeaders[eid] = r;
+      qstGroups[eid] = qstGroups[eid] || [];
+    } else if (dateVal.match(/^[A-Z]{2,3}$/) || (dateVal === '' && group && !group.match(/^INTEREST/i))) {
+      qstGroups[eid] = qstGroups[eid] || [];
+      if (group && !group.match(/^(TOTAL|CANCEL|INTEREST)/i)) {
+        qstGroups[eid].push(r);
+      }
+    }
+  });
+
+  Object.entries(qstHeaders).forEach(([eid, hdr]) => {
+    const dateStr = clean(hdr['DATE']);
+    // Quest dates are stored as Excel serial for Feb 26 entry
+    let startDate = parseEventDate(dateStr);
+    if (!startDate) {
+      // Try parsing as Excel serial
+      const d = excelToDate(dateStr);
+      if (d && d.getFullYear() === 2026) startDate = d;
+    }
+    if (!startDate) return;
+    const endDate = parseEndDate(dateStr) || startDate;
+    const estSize = parseInt(hdr[' (est)']) || 0;
+    const rows = qstGroups[eid] || [];
+    const groups = rows.filter(r => clean(r['GROUP'])).map(r => ({
+      state: clean(r['DATE']),
+      name: clean(r['GROUP']),
+      contact: clean(r['CONTACT']),
+      est: parseInt(r[' (est)']) || 0,
+      notes: clean(r['NOTES']),
+      deposit: clean(r['DEPOSIT'])
+    }));
+    const label = clean(hdr['GROUP']);
+    const dateLabel = dateStr.match(/^\d+$/)
+      ? (()=>{ const d=excelToDate(dateStr); return d ? (MONTHS[d.getMonth()]+' '+d.getDate()) : dateStr; })()
+      : fmtRange(dateStr);
+    events.push({id:eid, type:'Quest', dateStr, startDate, endDate, status:'open', estSize, groups,
+      notes: clean(hdr['NOTES']), label: label.includes('1 Day') ? dateLabel+' (1 Day)' : dateLabel});
+  });
+
+  // Sort by date
+  events.sort((a,b) => a.startDate - b.startDate);
+  return events;
+}
+
+// ─── BUILD KITCHEN REPORT ─────────────────────────────────────────────────────
+function buildKitchen(registrations, ev) {
+  const start = ev.startDate;
+  const end   = ev.endDate;
+
+  // Match registrations to this event using Event string
+  // Event strings look like "Expedition - 26.06.07-26.06.12"
+  // We match by type + date parts
+  const startYMD = `${start.getFullYear()}.${String(start.getMonth()+1).padStart(2,'0')}.${String(start.getDate()).padStart(2,'0')}`;
+  const regs = registrations.filter(r => {
+    const ev2 = (r['Event']||'').trim();
+    return ev2.includes(startYMD);
+  });
+
+  const total = regs.length;
+  const dietary  = regs.filter(r => (r['Dietary Needs']||'').trim());
+  const allergies = regs.filter(r => (r['Allergies']||'').trim());
+
+  const birthdays = regs.filter(r => {
+    const s = r['DOB'];
+    if (!s) return false;
+    const d = excelToDate(s);
+    if (!d) return false;
+    const bd = new Date(2026, d.getMonth(), d.getDate());
+    return bd >= start && bd <= end;
+  });
+
+  let h = `<div class="m-kitchen">
+    <div class="m-kitchen-hdr">
+      <span style="font-size:16px">&#127859;</span>
+      <span class="m-kitchen-title">Kitchen Report</span>
+      <span style="font-size:10px;color:var(--muted);margin-left:auto">Live from registrations</span>
+    </div>
+    <div class="m-kitchen-body">`;
+
+  // Numbers
+  h += `<div class="m-ksub">Numbers Overview</div>
+    <div class="m-kgend">
+      <div class="m-kgbox"><div class="m-kgnum">${ev.estSize}</div><div class="m-kglbl">Est. Total</div></div>
+      <div class="m-kgbox"><div class="m-kgnum">${total}</div><div class="m-kglbl">Registered</div></div>
+      <div class="m-kgbox"><div class="m-kgnum">${Math.max(0,ev.estSize-total)}</div><div class="m-kglbl">Unreg. Est.</div></div>
+    </div>`;
+
+  // Dietary
+  h += `<div class="m-ksub">Dietary Needs</div>`;
+  if (dietary.length) {
+    dietary.forEach(r => {
+      h += `<div class="m-krow">&#x1F957; <strong>${clean(r['Registrant'])}</strong> &middot; ${clean(r['GROUP NAME'])}<br><span style="color:var(--amber)">${r['Dietary Needs'].trim()}</span></div>`;
+    });
+  } else {
+    h += `<div class="m-knone">No dietary needs on file</div>`;
+  }
+
+  // Allergies
+  h += `<div class="m-ksub">Allergies</div>`;
+  if (allergies.length) {
+    allergies.forEach(r => {
+      h += `<div class="m-kalert">&#9888;&#65039; <strong>${clean(r['Registrant'])}</strong> &middot; ${clean(r['GROUP NAME'])}<br>${r['Allergies'].trim()}</div>`;
+    });
+  } else {
+    h += `<div class="m-knone">No allergies on file</div>`;
+  }
+
+  // Birthdays
+  if (birthdays.length) {
+    h += `<div class="m-ksub">Birthdays During Event</div>`;
+    birthdays.forEach(r => {
+      const d = excelToDate(r['DOB']);
+      const bd = new Date(2026, d.getMonth(), d.getDate());
+      const day = bd.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
+      h += `<div class="m-kbday">&#127874; <strong>${clean(r['Registrant'])}</strong> &middot; ${clean(r['GROUP NAME'])}<br>${day}</div>`;
+    });
+  }
+
+  h += `</div></div>`;
+  return h;
+}
+
+// ─── RENDER EVENTS ────────────────────────────────────────────────────────────
+function renderEvents(events) {
+  const now = todayDate();
+  const upcoming = events.filter(e => e.endDate >= now);
+  const el = document.getElementById('evList');
+  document.getElementById('evCount').textContent = upcoming.length + ' upcoming';
+  el.innerHTML = '';
+
+  if (!upcoming.length) {
+    el.innerHTML = '<div class="loading">No upcoming events found.</div>';
+    return;
+  }
+
+  upcoming.forEach((ev, i) => {
+    const cfg = TYPE_CFG[ev.type] || TYPE_CFG['Quest'];
+    const mo = MONTHS[ev.startDate.getMonth()];
+    const dy = ev.startDate.getDate();
+    const statusLabel = ev.status === 'full' ? 'FULL' : 'OPEN';
+    const statusCls = ev.status === 'full' ? 'p-full' : 'p-open';
+    const realGroups = ev.groups.filter(g => g.name && g.est > 0);
+    const label = ev.label || fmtRange(ev.dateStr);
+
+    const div = document.createElement('div');
+    div.className = 'ev-card';
+    div.style.animationDelay = (i*0.06)+'s';
+    div.innerHTML = `
+      <div class="ev-acc ${cfg.acc}"></div>
+      <div class="ev-bod">
+        <div class="ev-dt"><div class="ev-mo">${mo}</div><div class="ev-dy">${dy}</div></div>
+        <div class="ev-dv"></div>
+        <div class="ev-inf">
+          <div class="ev-badge ${cfg.badge}">${ev.type}</div>
+          <div class="ev-name">${ev.type} &ndash; ${label}</div>
+          <div class="ev-sub">${realGroups.length} group${realGroups.length!==1?'s':''} &middot; Est. ${ev.estSize} attendees</div>
+        </div>
+        <div class="ev-pills">
+          <div class="ev-p ${statusCls}">${statusLabel}</div>
+          <div class="ev-p p-cnt">${realGroups.length} grp${realGroups.length!==1?'s':''}</div>
+        </div>
+        <div class="ev-arr">&#x203A;</div>
+      </div>`;
+    div.addEventListener('click', () => openModal(ev));
+    el.appendChild(div);
+  });
+}
+
+// ─── MODAL ────────────────────────────────────────────────────────────────────
+let currentRegistrations = [];
+
+function openModal(ev) {
+  const cfg = TYPE_CFG[ev.type] || TYPE_CFG['Quest'];
+  const realGroups = ev.groups.filter(g => g.name && g.est > 0);
+  const label = ev.label || fmtRange(ev.dateStr);
+
+  document.getElementById('mBar').style.background = cfg.color;
+  document.getElementById('mDot').style.background = cfg.color;
+  document.getElementById('mTag').textContent = ev.type.toUpperCase() + ' \u00B7 ' + label + ', 2026';
+  document.getElementById('mTitle').textContent = ev.type + ' \u2013 ' + label;
+  document.getElementById('mSub').textContent = 'Est. ' + ev.estSize + ' attendees \u00B7 ' + realGroups.length + ' group' + (realGroups.length!==1?'s':'') + ' \u00B7 ' + ev.status.toUpperCase();
+
+  let body = `<div class="m-chips">
+    <div class="m-chip"><div class="m-chip-l">Est. Total</div><div class="m-chip-v">${ev.estSize}</div></div>
+    <div class="m-chip"><div class="m-chip-l">Groups</div><div class="m-chip-v">${realGroups.length}</div></div>
+    <div class="m-chip"><div class="m-chip-l">Status</div><div class="m-chip-v">${ev.status==='full'?'&#x1F534; Full':'&#x1F7E2; Open'}</div></div>
+  </div>`;
+
+  if (realGroups.length) {
+    body += `<div class="m-sec"><div class="m-st">Registered Groups</div>`;
+    realGroups.forEach(g => {
+      const dep = g.deposit ? ` <span style="font-size:10px;background:#eaf4ec;color:#2e7a42;padding:1px 6px;border-radius:4px;margin-left:4px">${g.deposit}</span>` : '';
+      body += `<div class="m-grp">
+        <div>
+          <div class="m-gn">${g.name}${dep}</div>
+          <div class="m-gm">${g.state ? g.state+' \u00B7 ' : ''}${g.contact}${g.notes?' \u00B7 '+g.notes:''}</div>
+        </div>
+        <div class="m-gnum">${g.est}</div>
+      </div>`;
+    });
+    body += `</div>`;
+  }
+
+  if (ev.notes) {
+    body += `<div class="m-note">&#x1F4DD; ${ev.notes}</div>`;
+  }
+
+  body += buildKitchen(currentRegistrations, ev);
+
+  document.getElementById('mBody').innerHTML = body;
+  document.getElementById('modal').classList.add('open');
+}
+
+document.getElementById('mClose').addEventListener('click', () => document.getElementById('modal').classList.remove('open'));
+document.getElementById('modal').addEventListener('click', function(e){ if(e.target===this) this.classList.remove('open'); });
+
+// ─── YEAR STATS ───────────────────────────────────────────────────────────────
+function renderYear(events, registrations) {
+  const totalRegs = registrations.length;
+  const typeCount = {};
+  events.forEach(e => { typeCount[e.type] = (typeCount[e.type]||0)+1; });
+
+  // Reg by type
+  const regByType = {};
+  registrations.forEach(r => {
+    const ev = (r['Event']||'');
+    const type = ev.split(' -')[0].trim();
+    regByType[type] = (regByType[type]||0)+1;
+  });
+
+  document.getElementById('yearSubtitle').textContent = totalRegs + ' total registrations across ' + events.length + ' events';
+
+  const stats = [
+    {v:totalRegs, l:'Total Registrations', cls:'g'},
+    {v:typeCount['Expedition']||0, l:'Expedition Weeks', cls:'o'},
+    {v:typeCount['Course']||0, l:'Course Sessions', cls:'b'},
+    {v:typeCount['Quest']||0, l:'Quest Weekends', cls:'p'},
+    {v:(typeCount['Retreat']||0)+(typeCount['CLR']||0), l:'Retreat / CLR Events', cls:'a'},
+    {v:events.reduce((s,e)=>s+e.groups.filter(g=>g.name&&g.est>0).length,0), l:'Registered Groups', cls:'t'},
+  ];
+  const grid = document.getElementById('statGrid');
+  grid.innerHTML = '';
+  stats.forEach((s,i) => {
+    const d = document.createElement('div');
+    d.className='yr-tile '+s.cls;
+    d.style.animationDelay=(i*0.08)+'s';
+    d.innerHTML=`<div class="yr-num">${s.v}</div><div class="yr-lbl">${s.l}</div>`;
+    grid.appendChild(d);
+  });
+
+  // By program
+  const programs = [
+    {name:'Expedition', color:'#d4650a'},{name:'Course', color:'#2a5f8e'},
+    {name:'Quest', color:'#6b3fa0'},{name:'Retreat', color:'#3e9e58'},{name:'CLR', color:'#c9a000'},
+  ];
+  const maxR = Math.max(...programs.map(p=>regByType[p.name]||0), 1);
+  const bp = document.getElementById('byProgram');
+  bp.innerHTML = '';
+  programs.forEach(p => {
+    const cnt = regByType[p.name]||0;
+    bp.innerHTML += `<div class="yr-row"><div class="yr-rname">${p.name}</div><div class="yr-bw"><div class="yr-b" style="width:${Math.round(cnt/maxR*100)}%;background:${p.color}"></div></div><div class="yr-rval">${cnt}</div></div>`;
+  });
+
+  // By month
+  const byMonth = {};
+  events.forEach(e => {
+    const mo = MONTHS[e.startDate.getMonth()];
+    byMonth[mo] = (byMonth[mo]||0)+1;
+  });
+  const maxM = Math.max(...Object.values(byMonth),1);
+  const bm = document.getElementById('byMonth');
+  bm.innerHTML = '';
+  Object.entries(byMonth).forEach(([mo,cnt]) => {
+    bm.innerHTML += `<div class="yr-row"><div class="yr-rname">${mo}</div><div class="yr-bw"><div class="yr-b" style="width:${Math.round(cnt/maxM*100)}%;background:#3d7a47"></div></div><div class="yr-rval">${cnt} event${cnt!==1?'s':''}</div></div>`;
+  });
+
+  // All events
+  const ae = document.getElementById('allEvents');
+  ae.innerHTML = '';
+  events.forEach(ev => {
+    const cfg = TYPE_CFG[ev.type]||TYPE_CFG['Quest'];
+    const statusCls = ev.status==='full'?'p-full':'p-open';
+    const label = ev.label||fmtRange(ev.dateStr);
+    ae.innerHTML += `<div class="yr-row" style="cursor:pointer" onclick="openModalById('${ev.id}')">
+      <div class="yr-rname"><span class="ev-badge ${cfg.badge}" style="margin-right:6px">${ev.type}</span>${ev.type} &ndash; ${label}</div>
+      <span class="ev-p ${statusCls}" style="font-size:10px;padding:2px 7px;border-radius:6px">${ev.status.toUpperCase()}</span>
+    </div>`;
+  });
+}
+
+let allEvents = [];
+function openModalById(id){ const ev = allEvents.find(e=>e.id===id); if(ev) openModal(ev); }
+
+// ─── TABS ──────────────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', function(){
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+    this.classList.add('active');
+    document.getElementById('tab-'+this.dataset.tab).classList.add('active');
+  });
+});
+
+// ─── INIT ──────────────────────────────────────────────────────────────────────
+fetch(JSON_URL)
+  .then(r => { if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+  .then(data => {
+    currentRegistrations = data.registrations || [];
+    allEvents = buildEvents(data);
+
+    if (data.lastUpdated) {
+      const d = new Date(data.lastUpdated);
+      document.getElementById('lastUpdated').textContent =
+        'Updated ' + d.toLocaleDateString('en-US',{month:'short',day:'numeric'}) +
+        ' at ' + d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    }
+
+    renderEvents(allEvents);
+    renderYear(allEvents, currentRegistrations);
+  })
+  .catch(err => {
+    console.error('Failed to load portal data:', err);
+    document.getElementById('lastUpdated').textContent = 'Offline';
+    document.getElementById('evList').innerHTML =
+      '<div class="loading" style="color:var(--red)">&#x26A0;&#xFE0F; Could not load live data.<br><small>'+err.message+'</small></div>';
+  });
+</script>
+</body>
+</html>
